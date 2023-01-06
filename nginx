@@ -1,0 +1,42 @@
+upstream samplecluster {
+  server 192.168.64.80;
+  server 192.168.64.78;
+  server 192.168.64.79;
+  server 192.168.64.75;
+  server 192.168.64.80;
+  server 192.168.64.90;
+  server 192.168.64.84;
+  server 192.168.64.89;
+  server 192.168.64.81;
+  server 192.168.64.85;
+  server 192.168.64.83;
+  server 192.168.64.88;
+  server 192.168.64.86;
+  server 192.168.64.82;
+  server 192.168.64.87;
+}
+
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        server_name _;
+
+
+        root /var/www/html;
+
+
+        location / {
+          proxy_pass http://samplecluster;
+                # First attempt to serve request as file, then
+                # as directory, then fall back to displaying a 404.
+                try_files $uri $uri/ =404;
+                # proxy_pass http://localhost:8080;
+                # proxy_http_version 1.1;
+                # proxy_set_header Upgrade $http_upgrade;
+                # proxy_set_header Connection 'upgrade';
+                # proxy_set_header Host $host;
+                # proxy_cache_bypass $http_upgrade;
+        }
+
+    
+}

@@ -1,0 +1,57 @@
+---
+  - hosts: node
+    become: yes
+    tasks:
+      - name: apt update
+        tags: update
+        apt: 
+          update_cache: yes
+      - name: install nginx
+        tags: install
+        apt: 
+          name: nginx
+      - name: command
+        tags: command
+        command: rm -r -f /var/www/html/
+      - name: upload html
+        tags: upload
+        copy:
+          src: ./html/
+          dest: /var/www/html/
+          owner: root
+          group: root
+          mode: 0644
+      - name: list
+        tags: list
+        shell: hostname
+        register: result
+      - name: hostname change
+        tags: list
+        shell: echo {{result.stdout}} > /var/www/html/index.html 
+      - name: debug
+        tags: list
+        debug:
+          msg: "{{result.stdout_lines}}"
+  - hosts: loadblancer
+    become: yes
+    tasks:
+      - name: apt update
+        tags: update
+        apt: 
+          update_cache: yes
+      - name: install nginx
+        tags: install
+        apt: 
+          name: nginx
+      - name: nginx.conf upload
+        template:
+          src: ./nginx
+          dest: /etc/nginx/sites-available/default
+          owner: root
+          group: root
+          mode: 0644
+      - name: nginx restart
+        service:
+          name: nginx
+          state: restarted
+          enabled: yes
